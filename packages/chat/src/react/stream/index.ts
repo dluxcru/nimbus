@@ -38,6 +38,7 @@ export type {
   ReplyStamp,
   DraftServices,
   EventServices,
+  FileServices,
   TitleServices,
   FocusServices,
   AbortRunRequest,
@@ -49,3 +50,7 @@ export type {
   EventTransportServices,
   ConversationCacheServices,
 } from './services';
+export { useEventHandlers } from './events/handlers';
+export type { EventHandlers } from './events/handlers';
+export type { EventHandlerParams } from './events/context';
+export type { TSyncData, TTitleEvent } from './events/opening';
