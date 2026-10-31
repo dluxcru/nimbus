@@ -4,12 +4,13 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Chat } from '@librechat/chat';
 import { createInstance } from 'i18next';
-import { ContentTypes } from 'librechat-data-provider';
+import { ContentTypes, EModelEndpoint } from 'librechat-data-provider';
 import {
   Part,
   Text,
   MessageRow,
   MentionPopover,
+  HoverButtons,
   getHeaderHoverLabel,
 } from '@librechat/chat/components';
 import { initReactI18next, I18nextProvider } from 'react-i18next';
@@ -21,7 +22,12 @@ import {
   MessagesHostProvider,
   MessagePartsHostProvider,
 } from '@librechat/chat/react';
-import type { ChatEvent, TMessage, TMessageContentParts } from 'librechat-data-provider';
+import type {
+  ChatEvent,
+  TMessage,
+  TConversation,
+  TMessageContentParts,
+} from 'librechat-data-provider';
 import type { ChatState, ChatStream, ChatTransport } from '@librechat/chat';
 import type { PartRenderers } from '@librechat/chat/components';
 import type { MessagesHost, MessagePartsHost } from '@librechat/chat/react';
@@ -194,6 +200,8 @@ const messagesHost: MessagesHost = {
   }),
   useForkConversation: () => null,
   useMessageCopy: () => ({ copyToClipboard: () => undefined, canCopy: false }),
+  useGetMessages: () => () => undefined,
+  renderMessageAudio: () => null,
   useScrolling: () => ({
     contentRef: { current: null },
     scrollableRef: { current: null },
@@ -226,6 +234,9 @@ const partsOf = (message: TMessage): TMessageContentParts[] =>
     ? message.content
     : [{ type: ContentTypes.TEXT, text: message.text ?? '' }];
 
+const conversation = { conversationId: 'convo', endpoint: EModelEndpoint.agents } as TConversation;
+const noop = (): void => undefined;
+
 function ChatView({ chat }: { chat: Chat }): ReactElement {
   const subscribe = useMemo(() => chat.subscribe.bind(chat), [chat]);
   const messages = useSyncExternalStore(subscribe, () => chat.messages);
@@ -249,7 +260,20 @@ function ChatView({ chat }: { chat: Chat }): ReactElement {
                   ariaLabel={label}
                   hoverLabel={getHeaderHoverLabel(false, message.model)}
                   icon={null}
-                  footer={null}
+                  footer={
+                    <HoverButtons
+                      index={0}
+                      isLast={false}
+                      isEditing={false}
+                      message={message}
+                      conversation={conversation}
+                      enterEdit={noop}
+                      regenerate={noop}
+                      handleContinue={noop}
+                      copyToClipboard={noop}
+                      getCanCopy={() => status === 'ready'}
+                    />
+                  }
                   timestamp={message.createdAt}
                   isCreatedByUser={message.isCreatedByUser}
                 >
@@ -362,6 +386,8 @@ describe('a consumer built on the public entries', () => {
     expect(await within(list).findByText('Hello there.')).toBeInTheDocument();
     expect(within(list).getAllByRole('listitem')).toHaveLength(2);
     expect(await screen.findByText('ready')).toBeInTheDocument();
+    const settled = within(list).getByRole('group', { name: 'Assistant' });
+    expect(within(settled).getByRole('button', { name: 'com_ui_copy_to_clipboard' })).toBeEnabled();
     expect(document.documentElement.style.getPropertyValue('--theme-mono-font-family')).toContain(
       'Inconsolata',
     );
