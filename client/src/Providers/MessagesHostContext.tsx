@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { setDefaultMessagesHost } from '@librechat/chat/react';
+import { setDefaultMessagesHost, revealedQueuedTurnFamily } from '@librechat/chat/react';
 import type {
   ForkEvents,
   MessageCopy,
@@ -92,6 +92,10 @@ function useAppGetMessages(): () => TMessage[] | undefined {
   return useOptionalMessagesOperations().getMessages;
 }
 
+function useAppHasPendingTurn(conversationId: string): boolean {
+  return useAtomValue(revealedQueuedTurnFamily(conversationId)) != null;
+}
+
 /** Read-aloud follows the viewer's text-to-speech setting; off, the row draws no control. */
 function AppMessageAudio(props: MessageAudioProps) {
   const textToSpeech = useRecoilValue<boolean>(store.textToSpeech);
@@ -112,6 +116,7 @@ export const appMessagesHost: MessagesHost = {
   useForkConversation: useAppForkConversation,
   useMessageCopy: useAppMessageCopy,
   useGetMessages: useAppGetMessages,
+  useHasPendingTurn: useAppHasPendingTurn,
   renderMessageAudio: (props) => <AppMessageAudio {...props} />,
   useScrolling,
   useScreenshotTarget: () => useScreenshot().screenshotTargetRef,
