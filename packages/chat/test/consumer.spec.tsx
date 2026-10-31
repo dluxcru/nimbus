@@ -10,6 +10,8 @@ import {
   Text,
   MessageRow,
   MentionPopover,
+  ComposerField,
+  ComposerActions,
   getHeaderHoverLabel,
 } from '@librechat/chat/components';
 import { initReactI18next, I18nextProvider } from 'react-i18next';
@@ -24,7 +26,7 @@ import {
 import type { ChatEvent, TMessage, TMessageContentParts } from 'librechat-data-provider';
 import type { ChatState, ChatStream, ChatTransport } from '@librechat/chat';
 import type { PartRenderers } from '@librechat/chat/components';
-import type { MessagesHost, MessagePartsHost } from '@librechat/chat/react';
+import type { MessagesHost, SteeringControls, MessagePartsHost } from '@librechat/chat/react';
 import type { ReactElement } from 'react';
 
 /**
@@ -397,5 +399,52 @@ describe('a consumer built on the public entries', () => {
     fireEvent.keyDown(combobox, { key: 'Enter' });
     expect(onSelectMention).toHaveBeenCalledWith(expect.objectContaining({ value: 'review' }));
     textarea.remove();
+  });
+
+  it('drafts in the composer field and offers send once there is text', () => {
+    const textAreaRef = { current: null as HTMLTextAreaElement | null };
+    function Composer(): ReactElement {
+      const [text, setText] = useState('');
+      return (
+        <ThemeProvider themeDefinition={clickHouseTheme} persistThemeDefinition={false}>
+          <ComposerField
+            textAreaRef={textAreaRef}
+            ariaLabel="Message"
+            textareaProps={{ value: text, onChange: (event) => setText(event.target.value) }}
+            value={text}
+            listening={false}
+            dictationActive={false}
+            locked={false}
+          />
+          <ComposerActions
+            text={text}
+            submitButtonRef={{ current: null }}
+            isSubmitting={false}
+            answersAsk={false}
+            hasEndpoint
+            steering={{ duringRunActive: false } as SteeringControls}
+            isNewConversation
+            getText={() => text}
+            onConsumed={() => undefined}
+            enterToSend
+            fileCount={0}
+            sendDisabled={false}
+            duringRunDisabled={false}
+            showStopButton={false}
+            setShowStopButton={() => undefined}
+            stop={() => undefined}
+            canStop
+            isPreparingFromUrl={false}
+          />
+        </ThemeProvider>
+      );
+    }
+    render(<Composer />);
+
+    const field = screen.getByRole('textbox', { name: 'Message' });
+    expect(textAreaRef.current).toBe(field);
+    expect(screen.getByTestId('send-button')).toBeDisabled();
+    fireEvent.change(field, { target: { value: 'Hello' } });
+    expect(screen.getByTestId('send-button')).toBeEnabled();
   });
 });
