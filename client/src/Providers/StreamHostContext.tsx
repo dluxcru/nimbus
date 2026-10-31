@@ -10,6 +10,7 @@ import { useChatTransport } from '~/Providers/ChatTransportContext';
 import { useChatSettings } from '~/Providers/ChatSettingsContext';
 import { useResumableServices } from '~/hooks/SSE/resumable';
 import { useAuthContext } from '~/hooks/AuthContext';
+import useEventServices from '~/hooks/SSE/services';
 import useSSE from '~/hooks/SSE/useSSE';
 
 function useTransport() {
@@ -41,6 +42,7 @@ export const appStreamHost: StreamHost = {
       conversation: usePaneConversation(runIndex),
     };
   },
+  useEventServices,
 };
 
 export { StreamHostProvider, useStreamHost } from '@librechat/chat/react';
