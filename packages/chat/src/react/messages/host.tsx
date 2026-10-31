@@ -63,6 +63,27 @@ export type MessageCopy = {
   canCopy: boolean;
 };
 
+/** The button a read-aloud control draws, through the row's toolbar styling. */
+export type MessageAudioButtonProps = {
+  onClick: (e?: MouseEvent<HTMLButtonElement>) => void;
+  title: string;
+  icon: ReactNode;
+  isActive?: boolean;
+  isVisible?: boolean;
+  isDisabled?: boolean;
+  className?: string;
+};
+
+/** What a row hands the app's read-aloud control: the text to speak and how to draw its button. */
+export type MessageAudioProps = {
+  isLast?: boolean;
+  index: number;
+  messageId: string;
+  content: string;
+  className?: string;
+  renderButton?: (props: MessageAudioButtonProps) => ReactNode;
+};
+
 /**
  * Everything the message list reads from the app: viewer preferences, and render slots for the
  * pieces of a row that have not moved into this package yet. Members are hooks or slots, called
@@ -82,6 +103,10 @@ export interface MessagesHost {
   useForkConversation: () => ForkConversation | null;
   /** Copies a message the way the app renders it; `canCopy` is `false` where copying is unavailable. */
   useMessageCopy: (input: MessageCopyInput) => MessageCopy;
+  /** Reads the visible thread at call time; returns `undefined` outside a messages view. */
+  useGetMessages: () => () => TMessage[] | undefined;
+  /** Renders the app's read-aloud control, or `null` while read-aloud is off. */
+  renderMessageAudio: (props: MessageAudioProps) => ReactNode;
   /**
    * Drives the list's scrolling: follows the stream, lands on a conversation's end and keeps
    * the reader's position.
@@ -134,14 +159,18 @@ function useInertScrolling(): MessagesScrolling {
 
 const ignoreNearBottom: ReportNearBottom = () => undefined;
 
+const noMessages = (): TMessage[] | undefined => undefined;
+
 /** The host rows read outside any provider before an app registers one: locale clock, no slots,
- *  no forking, no copying, inert scrolling. */
+ *  no forking, no copying, no thread, no read-aloud, inert scrolling. */
 const fallbackHost: MessagesHost = {
   useHour12: () => undefined,
   renderFiles: () => null,
   useForkPreferences: () => fallbackForkPreferences,
   useForkConversation: () => null,
   useMessageCopy: () => fallbackMessageCopy,
+  useGetMessages: () => noMessages,
+  renderMessageAudio: () => null,
   useScrolling: useInertScrolling,
   useScreenshotTarget: () => useRef<HTMLDivElement>(null),
   useAutoScroll: () => false,
@@ -174,4 +203,9 @@ export function MessagesHostProvider({
 /** The host of the nearest provider, else the registered default, else the fallback. */
 export function useMessagesHost(): MessagesHost {
   return useContext(MessagesHostContext) ?? defaultHost;
+}
+
+/** A row's read-aloud control, drawn by the host's slot. */
+export function MessageAudioSlot(props: MessageAudioProps): ReactNode {
+  return useMessagesHost().renderMessageAudio(props);
 }

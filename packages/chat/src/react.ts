@@ -140,6 +140,8 @@ export type {
   ForkConversation,
   MessagesScrolling,
   ReportNearBottom,
+  MessageAudioProps,
+  MessageAudioButtonProps,
 } from './react/messages/host';
 export {
   SoleToolContext,
