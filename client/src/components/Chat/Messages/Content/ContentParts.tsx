@@ -1,5 +1,6 @@
 import { memo, useRef, useMemo, useEffect, useCallback, useContext, Fragment } from 'react';
 import { useStore } from 'jotai';
+import { hasPendingApprovalInPart } from '@librechat/chat';
 import { Constants, ContentTypes, Tools } from 'librechat-data-provider';
 import {
   ReasoningDisclosureContext,
@@ -53,7 +54,6 @@ import { useMCPAppsPolicy } from '~/Providers/MCPAppsPolicyContext';
 import { selectToolCallUIResources } from '~/utils/mcpApps';
 import PendingSkillCall from './Parts/PendingSkillCall';
 import ActivityPhaseGroup from './ActivityPhaseGroup';
-import { hasPendingApprovalInPart } from '~/utils';
 import EditContentParts from './EditContentParts';
 import { EmptyText, AgentUpdate } from './Parts';
 import ApprovalProvider from './ApprovalContext';
