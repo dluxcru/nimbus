@@ -10,8 +10,11 @@ import type {
   MessagesScrolling,
 } from '@librechat/chat/react';
 import type { TMessage } from 'librechat-data-provider';
+import EventSubagentActivityGroup from '~/components/Chat/Subagents/EventSubagentActivityGroup';
 import useConversationSeen from '~/hooks/Conversations/useConversationSeen';
 import useMessageScrolling from '~/hooks/Messages/useMessageScrolling';
+import ThreadMessage from '~/components/Chat/Messages/Thread/Message';
+import { useFileMapContext } from '~/Providers/FileMapContext';
 import Files from '~/components/Chat/Messages/Content/Files';
 import { useScreenshot } from '~/hooks/ScreenshotContext';
 import { useForkConvoMutation } from '~/data-provider';
@@ -65,9 +68,9 @@ function useScrolling(messagesTree: TMessage[] | null | undefined): MessagesScro
 }
 
 /** What the message list reads from the app: the viewer's clock format and fork defaults, the
- *  fork request, its scrolling, screenshot and seen reporting, and the row pieces that still live
- *  here. Registered as the default when this module loads, so rows read it on every route, the
- *  shared view included. */
+ *  fork request, its scrolling, screenshot and seen reporting, the thread's file map, and the row
+ *  pieces that still live here: the message body and the subagent activity group. Registered as
+ *  the default when this module loads, so rows read it on every route, the shared view included. */
 export const appMessagesHost: MessagesHost = {
   useHour12: useClockFormat,
   renderFiles: (message) => <Files message={message} />,
@@ -78,6 +81,9 @@ export const appMessagesHost: MessagesHost = {
   useScreenshotTarget: () => useScreenshot().screenshotTargetRef,
   useAutoScroll: () => useAtomValue(autoScrollAtom),
   useConversationSeen,
+  renderMessageRow: (props) => <ThreadMessage {...props} />,
+  renderActivity: (props) => <EventSubagentActivityGroup {...props} />,
+  useFileMap: useFileMapContext,
 };
 
 setDefaultMessagesHost(appMessagesHost);

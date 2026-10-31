@@ -133,8 +133,10 @@ export type {
   MessagesHost,
   ForkPreferences,
   ForkConversation,
+  ActivitySlotProps,
   MessagesScrolling,
   ReportNearBottom,
+  MessageRowSlotProps,
 } from './react/messages/host';
 export {
   SoleToolContext,

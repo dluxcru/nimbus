@@ -26,6 +26,9 @@ export function createMessagesHost(overrides: Partial<MessagesHost> = {}): Messa
     useScreenshotTarget: () => undefined,
     useAutoScroll: () => false,
     useConversationSeen: () => () => undefined,
+    renderMessageRow: () => null,
+    renderActivity: () => null,
+    useFileMap: () => undefined,
     ...overrides,
   };
 }
