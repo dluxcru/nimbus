@@ -25,6 +25,13 @@ import { createPluginAuthModel } from './pluginAuth';
 import { createSharedLinkModel } from './sharedLink';
 import { createAccessRoleModel } from './accessRole';
 import { createToolFavoriteModel } from './favorite';
+import {
+  createReferenceAssetModel,
+  createReferenceCollectionModel,
+  createReferenceCollectionItemModel,
+  createReferenceSavedFilterModel,
+  createReferenceTagModel,
+} from './referenceLibrary';
 import { createMCPServerModel } from './mcpServer';
 import { createAssistantModel } from './assistant';
 import { createSkillFileModel } from './skillFile';
@@ -93,6 +100,11 @@ export function createModels(mongoose: typeof import('mongoose')): {
   ToolCall: ReturnType<typeof createToolCallModel>;
   MemoryEntry: ReturnType<typeof createMemoryModel>;
   ToolFavorite: ReturnType<typeof createToolFavoriteModel>;
+  ReferenceAsset: ReturnType<typeof createReferenceAssetModel>;
+  ReferenceCollection: ReturnType<typeof createReferenceCollectionModel>;
+  ReferenceCollectionItem: ReturnType<typeof createReferenceCollectionItemModel>;
+  ReferenceTag: ReturnType<typeof createReferenceTagModel>;
+  ReferenceSavedFilter: ReturnType<typeof createReferenceSavedFilterModel>;
   AccessRole: ReturnType<typeof createAccessRoleModel>;
   AclEntry: ReturnType<typeof createAclEntryModel>;
   SystemGrant: ReturnType<typeof createSystemGrantModel>;
@@ -148,6 +160,11 @@ export function createModels(mongoose: typeof import('mongoose')): {
     ToolCall: createToolCallModel(mongoose),
     MemoryEntry: createMemoryModel(mongoose),
     ToolFavorite: createToolFavoriteModel(mongoose),
+    ReferenceAsset: createReferenceAssetModel(mongoose),
+    ReferenceCollection: createReferenceCollectionModel(mongoose),
+    ReferenceCollectionItem: createReferenceCollectionItemModel(mongoose),
+    ReferenceTag: createReferenceTagModel(mongoose),
+    ReferenceSavedFilter: createReferenceSavedFilterModel(mongoose),
     AccessRole: createAccessRoleModel(mongoose),
     AclEntry: createAclEntryModel(mongoose),
     SystemGrant: createSystemGrantModel(mongoose),

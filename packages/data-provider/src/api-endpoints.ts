@@ -428,6 +428,21 @@ export const mcpServer = (serverName: string) => `${BASE_URL}/api/mcp/servers/${
 
 export const revertAgentVersion = (agent_id: string) => `${agents({ path: `${agent_id}/revert` })}`;
 
+const referenceLibraryRoot = `${BASE_URL}/api/reference-library`;
+export const referenceLibraryCapabilities = () => `${referenceLibraryRoot}/capabilities`;
+export const referenceLibraryAssets = () => `${referenceLibraryRoot}/assets`;
+export const referenceLibraryAsset = (assetId: string) =>
+  `${referenceLibraryAssets()}/${encodeURIComponent(assetId)}`;
+export const referenceLibrarySearch = () => `${referenceLibraryRoot}/search`;
+export const referenceLibraryImports = () => `${referenceLibraryRoot}/imports`;
+export const referenceLibraryDuplicates = () => `${referenceLibraryRoot}/duplicates`;
+export const referenceLibraryCollections = () => `${referenceLibraryRoot}/collections`;
+export const referenceLibraryCollection = (collectionId: string) =>
+  `${referenceLibraryCollections()}/${encodeURIComponent(collectionId)}`;
+export const referenceLibraryTags = () => `${referenceLibraryRoot}/tags`;
+export const referenceLibrarySavedFilters = () => `${referenceLibraryRoot}/saved-filters`;
+export const referenceLibraryTrash = () => `${referenceLibraryRoot}/trash`;
+
 export const files = () => `${BASE_URL}/api/files`;
 export const fileUpload = () => `${BASE_URL}/api/files`;
 export const fileDelete = () => `${BASE_URL}/api/files`;

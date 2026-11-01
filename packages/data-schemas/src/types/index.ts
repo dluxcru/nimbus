@@ -31,6 +31,7 @@ export * from './pluginAuth';
 /* Memories */
 export * from './memory';
 export * from './favorite';
+export * from './referenceLibrary';
 /* Prompts */
 export * from './prompts';
 /* Skills */

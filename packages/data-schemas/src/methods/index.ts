@@ -56,6 +56,8 @@ import {
   MAX_TOOL_FAVORITES,
   type ToolFavoriteMethods,
 } from './favorite';
+import { createReferenceLibraryMethods } from './referenceLibrary';
+import type { ReferenceLibraryMethods } from '~/types/referenceLibrary';
 /* Agent Categories */
 import { createAgentCategoryMethods, type AgentCategoryMethods } from './agentCategory';
 /* Agent API Keys */
@@ -289,6 +291,7 @@ export type AllMethods = SubagentContentMethods &
   FileStorageMethods &
   MemoryMethods &
   ToolFavoriteMethods &
+  ReferenceLibraryMethods &
   AgentCategoryMethods &
   AgentApiKeyMethods &
   MCPServerMethods &
@@ -534,6 +537,7 @@ export function createMethods(
     ...createFileStorageMethods(mongoose),
     ...createMemoryMethods(mongoose),
     ...createToolFavoriteMethods(mongoose),
+    ...createReferenceLibraryMethods(mongoose),
     ...createAgentCategoryMethods(mongoose),
     ...createAgentApiKeyMethods(mongoose),
     ...createMCPServerMethods(mongoose, {
@@ -613,6 +617,7 @@ export type {
   ProjectFileRecord,
   ProjectFilesOptions,
   ToolFavoriteMethods,
+  ReferenceLibraryMethods,
   AgentCategoryMethods,
   AgentApiKeyMethods,
   MCPServerMethods,

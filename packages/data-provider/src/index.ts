@@ -55,6 +55,7 @@ export * from './types/graph';
 export * from './types/insights';
 export * from './types/traces';
 export * from './types/transport';
+export * from './types/referenceLibrary';
 export type {
   OutputTextProtectionPolicy,
   OutputProtectionConfig,

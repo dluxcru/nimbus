@@ -4441,6 +4441,54 @@ export const toolCallPreviewsConfigSchema = z.object({
 });
 
 export type TToolCallPreviewsConfig = z.infer<typeof toolCallPreviewsConfigSchema>;
+export const referenceLibrarySchema = z
+  .object({
+    enabled: z.boolean().default(false),
+    providers: z
+      .object({
+        google: z
+          .object({
+            apiKey: z.string().min(1),
+          })
+          .strict()
+          .optional(),
+        wikimedia: z
+          .object({
+            userAgent: z.string().min(1).optional(),
+          })
+          .strict()
+          .optional(),
+        pexels: z
+          .object({
+            apiKey: z.string().min(1),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .default({}),
+    import: z
+      .object({
+        maxBytes: z.number().int().min(1).max(100 * 1024 * 1024).default(20 * 1024 * 1024),
+        maxPixels: z.number().int().min(1).max(200_000_000).default(40_000_000),
+        timeoutMs: z.number().int().min(100).max(120_000).default(15_000),
+        tokenTtlSeconds: z.number().int().min(30).max(3_600).default(300),
+        maxBatchSize: z.number().int().min(1).max(100).default(25),
+      })
+      .strict()
+      .default({
+        maxBytes: 20 * 1024 * 1024,
+        maxPixels: 40_000_000,
+        timeoutMs: 15_000,
+        tokenTtlSeconds: 300,
+        maxBatchSize: 25,
+      }),
+    trashRetentionDays: z.number().int().min(1).max(365).default(30),
+  })
+  .strict();
+
+export type TReferenceLibraryConfig = z.infer<typeof referenceLibrarySchema>;
+
 
 export const configSchema = z.object({
   version: z.string(),
@@ -4457,6 +4505,7 @@ export const configSchema = z.object({
   projects: chatProjectsConfigSchema,
   ocr: ocrSchema.optional(),
   webSearch: webSearchSchema.optional(),
+  referenceLibrary: referenceLibrarySchema.optional(),
   githubCompare: z
     .object({
       enabled: z.boolean().default(false),

@@ -1,3 +1,5 @@
+import type { ReferenceAssetFilters } from './types';
+
 export enum QueryKeys {
   messages = 'messages',
   /* Full content of one tool-call part, fetched when its preview is not enough */
@@ -40,6 +42,7 @@ export enum QueryKeys {
   agent = 'agent',
   files = 'files',
   fileConfig = 'fileConfig',
+  referenceLibrary = 'referenceLibrary',
   tools = 'tools',
   toolAuth = 'toolAuth',
   toolCalls = 'toolCalls',
@@ -130,6 +133,10 @@ export const DynamicQueryKeys = {
   codeSetupAttempt: (attemptId: string, userId: string) =>
     [QueryKeys.codeSetupAttempt, userId, attemptId] as const,
   agentFiles: (agentId: string) => ['agentFiles', agentId] as const,
+  referenceLibraryAssets: (filters: ReferenceAssetFilters) =>
+    [QueryKeys.referenceLibrary, 'assets', filters] as const,
+  referenceLibraryAsset: (assetId: string) =>
+    [QueryKeys.referenceLibrary, 'asset', assetId] as const,
   projectFiles: (projectId: string) => [QueryKeys.projectFiles, projectId] as const,
   projectAvailableFiles: (projectId: string) =>
     [QueryKeys.projectAvailableFiles, projectId] as const,

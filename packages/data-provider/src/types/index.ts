@@ -5,3 +5,5 @@ export * from './background';
 export * from './queuedTurns';
 
 export * from './scheduleConsent';
+
+export * from './referenceLibrary';
