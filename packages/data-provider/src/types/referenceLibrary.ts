@@ -63,9 +63,14 @@ export interface ReferenceTag {
 export interface ReferenceAssetFilters {
   query?: string;
   tags?: string[];
+  tagMatch?: 'all' | 'any';
   collectionId?: string;
   favorite?: boolean;
   rating?: number;
+  minWidth?: number;
+  maxWidth?: number;
+  minHeight?: number;
+  maxHeight?: number;
   colorLabel?: string;
   provider?: ReferenceProvider;
   rightsState?: ReferenceRightsState;
@@ -140,6 +145,10 @@ export interface ReferenceImportResult {
 
 export interface ReferenceImportResponse {
   results: ReferenceImportResult[];
+}
+export interface ReferenceSaveResponse {
+  asset: ReferenceAsset;
+  reused: boolean;
 }
 
 export interface ReferenceAssetPatch {

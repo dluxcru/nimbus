@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { BookmarkPlus, Check } from 'lucide-react';
 import { AGENT_STYLE_TOOLS } from '.';
-import { PixelCard } from '@librechat/client';
+import { PixelCard, useToastContext } from '@librechat/client';
 import { useToolCallIntent } from '@librechat/chat/react';
 import { ROW_GLYPH_SLOT } from '@librechat/chat/components';
 import type {
@@ -13,6 +14,8 @@ import { ToolIcon, isError } from '~/components/Chat/Messages/Content/ToolOutput
 import Image from '~/components/Chat/Messages/Content/Image';
 import { useToolPreparation } from '../../preparation';
 import { useProgress, useLocalize } from '~/hooks';
+import { useReferenceLibraryCapabilities, useSaveReferenceImage } from '~/data-provider';
+import { useShareContext } from '~/Providers';
 import ProgressText from './ProgressText';
 import { scaleImage } from '~/utils';
 
@@ -54,6 +57,13 @@ export default function OpenAIImageGen({
   runStepStatus?: PartMetadata['runStepStatus'];
 }) {
   const localize = useLocalize();
+  const { shareId } = useShareContext();
+  const { data: referenceLibrary } = useReferenceLibraryCapabilities({
+    enabled: !shareId,
+  });
+  const saveReference = useSaveReferenceImage();
+  const { showToast } = useToastContext();
+  const [saved, setSaved] = useState(false);
   const preparationText = useToolPreparation();
   /** Model-authored live label (injected when the tool is opted into
    *  describe_intent); wins over the phase texts. */
@@ -122,10 +132,12 @@ export default function OpenAIImageGen({
 
   const attachment = attachments?.[0];
   const {
+    file_id: fileId,
     width: imageWidth,
     height: imageHeight,
     filepath = null,
     filename = '',
+    metadata,
   } = (attachment as TFile & TAttachmentMetadata) || {};
 
   let origWidth = width ?? imageWidth;
@@ -275,13 +287,50 @@ export default function OpenAIImageGen({
               />
             )}
             {filepath && (
-              <Image
-                altText={filename}
-                imagePath={filepath}
-                width={Number(dimensions.width?.split('px')[0])}
-                height={Number(dimensions.height?.split('px')[0])}
-                args={parsedArgs}
-              />
+              <div className="group/generated-image relative">
+                <Image
+                  altText={filename}
+                  imagePath={filepath}
+                  width={Number(dimensions.width?.split('px')[0])}
+                  height={Number(dimensions.height?.split('px')[0])}
+                  args={parsedArgs}
+                />
+                {!shareId && referenceLibrary?.enabled && fileId && !metadata?.referenceLibrary && (
+                  <button
+                    type="button"
+                    disabled={saved || saveReference.isLoading}
+                    onClick={() =>
+                      saveReference.mutate(
+                        { fileId, title: filename },
+                        {
+                          onSuccess: ({ reused }) => {
+                            setSaved(true);
+                            showToast({
+                              status: reused ? 'info' : 'success',
+                              message: localize(
+                                reused
+                                  ? 'com_reference_library_save_reused'
+                                  : 'com_reference_library_save_success',
+                              ),
+                            });
+                          },
+                          onError: () =>
+                            showToast({
+                              status: 'error',
+                              message: localize('com_reference_library_save_error'),
+                            }),
+                        },
+                      )
+                    }
+                    className="absolute top-2 right-2 flex items-center gap-1.5 rounded-lg border border-white/30 bg-black/55 px-2.5 py-1.5 text-xs font-medium text-white opacity-100 shadow-sm backdrop-blur transition hover:bg-black/70 focus-visible:ring-2 focus-visible:ring-white disabled:cursor-default"
+                  >
+                    {saved ? <Check className="size-3.5" /> : <BookmarkPlus className="size-3.5" />}
+                    {saved
+                      ? localize('com_reference_library_saved')
+                      : localize('com_reference_library_save')}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

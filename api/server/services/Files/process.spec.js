@@ -2667,6 +2667,31 @@ describe('processDeleteRequest', () => {
       failedFileIds: [],
     }));
   });
+  it('refuses generic deletion of reference-library files', async () => {
+    const deleteFile = jest.fn();
+    getStrategyFunctions.mockReturnValue({ deleteFile });
+    const req = {
+      body: {},
+      config: { fileConfig: { retainedFileCleanup: true } },
+      user: { id: 'user-123', tenantId: 'tenant-a' },
+    };
+
+    await expect(
+      processDeleteRequest({
+        req,
+        files: [
+          {
+            file_id: 'reference-file',
+            filepath: '/images/user-123/reference.png',
+            source: FileSources.local,
+            context: 'reference-library',
+          },
+        ],
+      }),
+    ).resolves.toEqual({ deletedFileIds: [], failedFileIds: ['reference-file'] });
+    expect(deleteFile).not.toHaveBeenCalled();
+    expect(db.deleteFiles).not.toHaveBeenCalled();
+  });
 
   it('removes metadata when backing storage is already missing', async () => {
     const missingError = Object.assign(new Error('no such file'), { code: 'ENOENT' });

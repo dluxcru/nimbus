@@ -15,12 +15,12 @@ import { cn } from '~/utils';
  */
 function Switcher({
   links,
-  onLeaveInsights,
+  onLeaveRoute,
   onNavigate,
   routeActiveId,
 }: {
   links: NavLink[];
-  onLeaveInsights?: () => void;
+  onLeaveRoute?: () => void;
   onNavigate?: () => void;
   routeActiveId?: string;
 }) {
@@ -48,11 +48,11 @@ function Switcher({
           }
           setActive(link.id);
           if (routeActiveId) {
-            onLeaveInsights?.();
+            onLeaveRoute?.();
           }
         },
       })),
-    [links, activeId, localize, onLeaveInsights, onNavigate, routeActiveId, setActive],
+    [links, activeId, localize, onLeaveRoute, onNavigate, routeActiveId, setActive],
   );
 
   if (!activeLink) {

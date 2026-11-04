@@ -1,6 +1,5 @@
 import { memo, useCallback, Suspense } from 'react';
 import { SquarePen } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
 import { Skeleton, Sidebar, Button, TooltipAnchor } from '@librechat/client';
 import type { NavLink } from '~/common';
 import { useShortcutAriaKey, useShortcutHint } from '~/hooks/useKeyboardShortcuts';
@@ -62,7 +61,7 @@ const NavIconButton = memo(function NavIconButton({
   onExpand,
   onCollapse,
   onNavigate,
-  onLeaveInsights,
+  onLeaveRoute,
 }: {
   link: NavLink;
   isActive: boolean;
@@ -71,7 +70,7 @@ const NavIconButton = memo(function NavIconButton({
   onExpand?: () => void;
   onCollapse?: () => void;
   onNavigate?: () => void;
-  onLeaveInsights?: () => void;
+  onLeaveRoute?: () => void;
 }) {
   const localize = useLocalize();
   const tooltipSide = inlineSide(useDirection(), 'end');
@@ -93,10 +92,10 @@ const NavIconButton = memo(function NavIconButton({
       if (!expanded) {
         onExpand?.();
       } else {
-        onLeaveInsights?.();
+        onLeaveRoute?.();
       }
     },
-    [link, isActive, setActive, expanded, onExpand, onCollapse, onNavigate, onLeaveInsights],
+    [link, isActive, setActive, expanded, onExpand, onCollapse, onNavigate, onLeaveRoute],
   );
 
   return (
@@ -127,7 +126,8 @@ function ExpandedPanel({
   onCollapse,
   onExpand,
   onNavigate,
-  onLeaveInsights,
+  onLeaveRoute,
+  routeActiveId,
   switchToHistory,
 }: {
   links: NavLink[];
@@ -135,15 +135,14 @@ function ExpandedPanel({
   onCollapse?: () => void;
   onExpand?: () => void;
   onNavigate?: () => void;
-  onLeaveInsights?: () => void;
+  onLeaveRoute?: () => void;
+  routeActiveId?: string;
   switchToHistory: boolean;
 }) {
   const localize = useLocalize();
   const tooltipSide = inlineSide(useDirection(), 'end');
-  const location = useLocation();
   const { active, setActive } = useActivePanel();
-  const effectiveActive = resolveActivePanel(active, links);
-  const isInsightsRoute = location.pathname.startsWith('/insights');
+  const effectiveActive = routeActiveId ?? resolveActivePanel(active, links);
 
   const toggleLabel = expanded ? 'com_nav_close_sidebar' : 'com_nav_open_sidebar';
   const toggleClick = expanded ? onCollapse : onExpand;
@@ -179,17 +178,13 @@ function ExpandedPanel({
           <NavIconButton
             key={link.id}
             link={link}
-            isActive={
-              link.id === 'insights'
-                ? isInsightsRoute
-                : !isInsightsRoute && link.id === effectiveActive
-            }
+            isActive={link.id === effectiveActive}
             expanded={expanded ?? true}
             setActive={setActive}
             onExpand={onExpand}
             onCollapse={onCollapse}
             onNavigate={onNavigate}
-            onLeaveInsights={isInsightsRoute ? onLeaveInsights : undefined}
+            onLeaveRoute={routeActiveId ? onLeaveRoute : undefined}
           />
         ))}
       </div>

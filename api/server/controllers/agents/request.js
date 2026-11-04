@@ -116,6 +116,7 @@ const {
   negotiateNewGenerationProtocol,
   negotiateExistingGenerationProtocol,
 } = require('./protocol');
+const { mergeReferenceLibraryMetadata } = require('./referenceLibraryMetadata');
 
 function sendGenerationJson(res, status, body, generationProtocolVersion) {
   if (typeof res.set === 'function') {
@@ -3053,7 +3054,10 @@ const ResumableAgentController = async (req, res, next, initializeClient, addTit
         }
 
         if (req.body.files && Array.isArray(client.options.attachments)) {
-          const files = buildMessageFiles(req.body.files, client.options.attachments);
+          const files = mergeReferenceLibraryMetadata(
+            req.body.files,
+            buildMessageFiles(req.body.files, client.options.attachments),
+          );
           if (files.length > 0) {
             userMessage.files = files;
           }

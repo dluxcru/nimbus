@@ -47,6 +47,7 @@ type ErasureMethods = Pick<
   | 'deleteSchedulesByUser'
   | 'deleteUserChatProjects'
   | 'deleteUserToolFavorites'
+  | 'deleteReferenceLibrary'
   | 'deleteRefreshTokenBridges'
   | 'deleteAllAgentQueuedTurnsForUser'
 >;
@@ -290,6 +291,7 @@ export async function eraseUserData(
   if ((await deps.getFiles({ user: userId }, undefined, { _id: 1 }, 1))?.length) {
     throw new Error('Stored file deletion incomplete');
   }
+  await deps.deleteReferenceLibrary(userId);
   await deps.deleteAllUserSessions({ userId });
   deps.onSessionsDeleted?.();
   await deps.deleteRefreshTokenBridges({ userId, tenantId });

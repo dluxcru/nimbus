@@ -76,7 +76,15 @@ function UnifiedSidebar({
 
   const links = useUnifiedSidebarLinks();
   const isInsightsRoute = location.pathname.startsWith('/insights');
-  const panelExpanded = expanded && !isInsightsRoute;
+  const isLibraryRoute = location.pathname.startsWith('/library');
+  let routeActiveId: 'insights' | 'reference-library' | undefined;
+  if (isInsightsRoute) {
+    routeActiveId = 'insights';
+  } else if (isLibraryRoute) {
+    routeActiveId = 'reference-library';
+  }
+  const isWorkspaceRoute = routeActiveId != null;
+  const panelExpanded = expanded && !isWorkspaceRoute;
 
   /** The aside's max width is a viewport percentage, so the announced range has to track
    *  the viewport rather than a render-time snapshot of it. */
@@ -104,16 +112,16 @@ function UnifiedSidebar({
     setSidebarOpen(true);
   }, [setSidebarOpen]);
 
-  const handleLeaveInsights = useCallback(() => {
+  const handleLeaveWorkspace = useCallback(() => {
     navigate('/c/new');
   }, [navigate]);
 
   const handlePanelExpand = useCallback(() => {
-    if (isInsightsRoute) {
-      handleLeaveInsights();
+    if (isWorkspaceRoute) {
+      handleLeaveWorkspace();
     }
     handleExpand();
-  }, [handleExpand, handleLeaveInsights, isInsightsRoute]);
+  }, [handleExpand, handleLeaveWorkspace, isWorkspaceRoute]);
 
   const handleResizeStart = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
@@ -264,8 +272,8 @@ function UnifiedSidebar({
             onClose={handleCollapse}
             onNewChat={handleCollapse}
             switchToHistory={switchToHistory}
-            onLeaveInsights={handleLeaveInsights}
-            routeActiveId={isInsightsRoute ? 'insights' : undefined}
+            onLeaveRoute={handleLeaveWorkspace}
+            routeActiveId={routeActiveId}
           />
           {/* Above the panel rather than inside it: the marketplace is a
               destination like the panels themselves, not a row of whichever
@@ -279,8 +287,8 @@ function UnifiedSidebar({
           </nav>
           <MobileShortcutTargets
             links={links}
-            onLeaveInsights={handleLeaveInsights}
-            routeActiveId={isInsightsRoute ? 'insights' : undefined}
+            onLeaveRoute={handleLeaveWorkspace}
+            routeActiveId={routeActiveId}
           />
           <MobileBottomBar links={links} />
         </ActivePanelProvider>
@@ -311,7 +319,8 @@ function UnifiedSidebar({
             maxWidth={panelExpanded ? resizeMax : COLLAPSED_WIDTH}
             onCollapse={handleCollapse}
             onExpand={handlePanelExpand}
-            onLeaveInsights={handleLeaveInsights}
+            onLeaveRoute={handleLeaveWorkspace}
+            routeActiveId={routeActiveId}
             switchToHistory={switchToHistory}
             onResizeStart={handleResizeStart}
             onResizeKeyboard={handleResizeKeyboard}

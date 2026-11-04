@@ -298,12 +298,22 @@ export function buildTurn({
         filename: file.filename,
         type: file.type ?? '',
         llmDeliveryPath: file.llmDeliveryPath,
+        metadata: file.metadata,
         height: file.height,
         width: file.width,
       });
       submittedFileIds.push(key, file.file_id, file.temp_file_id);
     }
     fileEffects = { submittedFileIds, clearComposer: true };
+  }
+
+  const referencePurposeLines = currentMsg.files
+    ?.map((file) => file.metadata?.referenceLibrary)
+    .filter((reference) => reference?.purpose)
+    .sort((left, right) => (left?.position ?? 0) - (right?.position ?? 0))
+    .map((reference) => `- ${reference?.title}: ${reference?.purpose}`);
+  if (!regenerateShaped && referencePurposeLines?.length) {
+    currentMsg.text = `${currentMsg.text}\n\nReference purposes:\n${referencePurposeLines.join('\n')}`;
   }
 
   const responseMessageId =

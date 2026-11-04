@@ -25,7 +25,7 @@ const renderSidebar = (direction: 'ltr' | 'rtl') => {
         maxWidth={600}
         onCollapse={jest.fn()}
         onExpand={jest.fn()}
-        onLeaveInsights={jest.fn()}
+        onLeaveRoute={jest.fn()}
         switchToHistory={false}
         onResizeStart={jest.fn()}
         onResizeKeyboard={onResizeKeyboard}

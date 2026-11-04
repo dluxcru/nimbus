@@ -3,6 +3,15 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { TMessage } from 'librechat-data-provider';
 import Files from '../Files';
+const mockSaveReference = jest.fn();
+
+jest.mock('~/data-provider', () => ({
+  useReferenceLibraryCapabilities: () => ({ data: { enabled: true } }),
+  useSaveReferenceImage: () => ({
+    isLoading: false,
+    mutate: mockSaveReference,
+  }),
+}));
 
 jest.mock('~/Providers', () => ({
   useFileMapContext: () => ({}),
@@ -70,4 +79,23 @@ it('exposes extracted image text without changing ordinary image previews', () =
   );
   fireEvent.click(screen.getByText('file action'));
   expect(screen.getByText('preview: text')).toBeInTheDocument();
+});
+
+it('saves an owned message image to the reference library', () => {
+  render(
+    <Files
+      message={
+        {
+          files: [{ file_id: 'image-to-save', filename: 'concept.png', type: 'image/png' }],
+        } as TMessage
+      }
+    />,
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: 'Save to library' }));
+
+  expect(mockSaveReference).toHaveBeenCalledWith(
+    { fileId: 'image-to-save', title: 'concept.png' },
+    expect.objectContaining({ onSuccess: expect.any(Function), onError: expect.any(Function) }),
+  );
 });

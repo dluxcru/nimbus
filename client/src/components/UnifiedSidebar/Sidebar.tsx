@@ -13,7 +13,8 @@ function Sidebar({
   maxWidth,
   onCollapse,
   onExpand,
-  onLeaveInsights,
+  onLeaveRoute,
+  routeActiveId,
   switchToHistory,
   onResizeStart,
   onResizeKeyboard,
@@ -25,7 +26,8 @@ function Sidebar({
   maxWidth: number;
   onCollapse: () => void;
   onExpand: () => void;
-  onLeaveInsights: () => void;
+  onLeaveRoute: () => void;
+  routeActiveId?: string;
   switchToHistory: boolean;
   onResizeStart: (e: React.MouseEvent<HTMLElement>) => void;
   onResizeKeyboard: (direction: 'shrink' | 'grow') => void;
@@ -38,7 +40,8 @@ function Sidebar({
           expanded={expanded}
           onCollapse={onCollapse}
           onExpand={onExpand}
-          onLeaveInsights={onLeaveInsights}
+          onLeaveRoute={onLeaveRoute}
+          routeActiveId={routeActiveId}
           switchToHistory={switchToHistory}
         />
         <nav

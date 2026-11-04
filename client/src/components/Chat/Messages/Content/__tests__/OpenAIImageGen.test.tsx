@@ -1,6 +1,19 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import OpenAIImageGen from '../Parts/OpenAIImageGen/OpenAIImageGen';
+const mockSaveReference = jest.fn();
+
+jest.mock('~/data-provider', () => ({
+  useReferenceLibraryCapabilities: () => ({ data: { enabled: true } }),
+  useSaveReferenceImage: () => ({
+    isLoading: false,
+    mutate: mockSaveReference,
+  }),
+}));
+
+jest.mock('~/Providers', () => ({
+  useShareContext: () => ({}),
+}));
 
 jest.mock('~/utils', () => ({
   scaleImage: () => ({ width: '512px', height: '512px' }),
@@ -27,6 +40,7 @@ jest.mock('@librechat/client', () => ({
   PixelCard: ({ progress }: { progress: number }) => (
     <div data-testid="pixel-card" data-progress={progress} />
   ),
+  useToastContext: () => ({ showToast: jest.fn() }),
 }));
 
 jest.mock('../ToolOutput', () => ({
@@ -97,6 +111,31 @@ describe('OpenAIImageGen', () => {
         />,
       );
       expect(screen.getByTestId('image-component')).toBeInTheDocument();
+    });
+
+    it('saves a generated image to the reference library', () => {
+      render(
+        <OpenAIImageGen
+          {...defaultProps}
+          initialProgress={1}
+          isSubmitting={false}
+          attachments={[
+            {
+              file_id: 'generated-file',
+              filename: 'cat.png',
+              filepath: '/images/cat.png',
+              conversationId: 'conv1',
+            } as never,
+          ]}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'com_reference_library_save' }));
+
+      expect(mockSaveReference).toHaveBeenCalledWith(
+        { fileId: 'generated-file', title: 'cat.png' },
+        expect.objectContaining({ onSuccess: expect.any(Function), onError: expect.any(Function) }),
+      );
     });
   });
 

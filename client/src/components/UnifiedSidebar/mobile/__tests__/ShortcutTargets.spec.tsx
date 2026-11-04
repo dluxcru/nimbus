@@ -1,6 +1,6 @@
 import { getDefaultStore } from 'jotai';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BarChart3, MessagesSquare, NotebookPen } from 'lucide-react';
+import { BarChart3, Images, MessagesSquare, NotebookPen } from 'lucide-react';
 import type { NavLink } from '~/common';
 import {
   DEFAULT_PANEL,
@@ -16,18 +16,18 @@ const links = [
 
 const renderTargets = ({
   targetLinks = links,
-  onLeaveInsights,
+  onLeaveRoute,
   routeActiveId,
 }: {
   targetLinks?: NavLink[];
-  onLeaveInsights?: () => void;
+  onLeaveRoute?: () => void;
   routeActiveId?: string;
 } = {}) =>
   render(
     <ActivePanelProvider>
       <ShortcutTargets
         links={targetLinks}
-        onLeaveInsights={onLeaveInsights}
+        onLeaveRoute={onLeaveRoute}
         routeActiveId={routeActiveId}
       />
     </ActivePanelProvider>,
@@ -84,13 +84,33 @@ describe('ShortcutTargets', () => {
   });
 
   it('leaves a route when a panel target is selected', () => {
-    const onLeaveInsights = jest.fn();
+    const onLeaveRoute = jest.fn();
 
-    renderTargets({ onLeaveInsights, routeActiveId: 'insights' });
+    renderTargets({ onLeaveRoute, routeActiveId: 'insights' });
     fireEvent.click(screen.getByTestId('nav-panel-prompts'));
 
-    expect(onLeaveInsights).toHaveBeenCalledTimes(1);
+    expect(onLeaveRoute).toHaveBeenCalledTimes(1);
     expect(getDefaultStore().get(activePanelAtom)).toBe('prompts');
+  });
+
+  it('reports the reference library route as active', () => {
+    const targetLinks = [
+      ...links,
+      {
+        id: 'reference-library',
+        title: 'com_reference_library_navigation',
+        icon: Images,
+        onClick: jest.fn(),
+      },
+    ] as unknown as NavLink[];
+
+    renderTargets({ targetLinks, routeActiveId: 'reference-library' });
+
+    expect(screen.getByTestId('nav-panel-reference-library')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByTestId('nav-panel-conversations')).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('offers no target for a panel this endpoint does not have', () => {

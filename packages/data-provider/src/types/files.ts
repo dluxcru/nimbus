@@ -216,6 +216,13 @@ export type TFile = {
    */
   previewError?: string;
   metadata?: {
+    /** Immutable reference-library context captured when this file was attached. */
+    referenceLibrary?: {
+      assetId: string;
+      title: string;
+      purpose?: string;
+      position: number;
+    };
     runFile?: RunFileProvenance;
     fileIdentifier?: string;
     /**

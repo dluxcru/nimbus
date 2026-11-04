@@ -11,10 +11,17 @@ import { useSetAtom } from 'jotai';
 import * as Ariakit from '@ariakit/react';
 import { isMacPlatform } from '@librechat/chat';
 import { AutoSizer, List } from 'react-virtualized';
-import { Star, Plus, Search, ChevronDown } from 'lucide-react';
+import { Star, Plus, Search, ChevronDown, Images } from 'lucide-react';
 import { FilePreview, getFileType } from '@librechat/chat/components';
 import { composerLiftFamily, useReducedMotion, useElementSize } from '@librechat/chat/react';
-import { Button, FileUpload, IconButton, TooltipAnchor, useMediaQuery } from '@librechat/client';
+import {
+  Button,
+  FileUpload,
+  IconButton,
+  TooltipAnchor,
+  useMediaQuery,
+  useToastContext,
+} from '@librechat/client';
 import type {
   TFile,
   TConversation,
@@ -26,6 +33,8 @@ import type { AttachEntry } from '~/hooks/Input/useAttachItems';
 import type { ExtendedFile, FileSetter } from '~/common';
 import type { CatalogSection } from './Catalog';
 import type { TranslationKeys } from '~/hooks';
+import { useReferenceLibraryCapabilities } from '~/data-provider';
+import ReferencePicker from '~/components/ReferenceLibrary/ReferencePicker';
 import { SharePointPickerDialog } from '~/components/SharePoint';
 import useToolFavorites from '~/hooks/Input/useToolFavorites';
 import useRecentFiles from '~/hooks/Input/useRecentFiles';
@@ -238,6 +247,12 @@ function Palette({
   const [showAllAttach, setShowAllAttach] = useState(false);
   /** The section whose "Show all" dialog is open, if any. */
   const [catalog, setCatalog] = useState<CatalogSection | null>(null);
+  const [referencePickerOpen, setReferencePickerOpen] = useState(false);
+  const referencePickerReturnRef = useRef<HTMLElement | null>(null);
+  const { showToast } = useToastContext();
+  const { data: referenceLibrary } = useReferenceLibraryCapabilities({
+    enabled: canAttach,
+  });
   /** Set while the palette closes to hand over to a dialog, so its close does
    *  not pull focus back into the composer from under the dialog. */
   const openingCatalogRef = useRef(false);
@@ -422,6 +437,70 @@ function Palette({
     setFilesLoading,
     isUnifiedMode,
   });
+  const attachEntries = useMemo(
+    () =>
+      referenceLibrary?.enabled
+        ? [
+            {
+              id: 'reference-library',
+              label: localize('com_reference_library_navigation'),
+              icon: <Images className="icon-md" aria-hidden="true" />,
+              primary: true,
+              onSelect: () => {
+                openingCatalogRef.current = true;
+                referencePickerReturnRef.current =
+                  anchorRef.current?.querySelector<HTMLElement>('[data-testid="text-input"]') ??
+                  null;
+                popover.hide();
+                setReferencePickerOpen(true);
+              },
+            },
+            ...attach.entries,
+          ]
+        : attach.entries,
+    [anchorRef, attach.entries, localize, popover, referenceLibrary?.enabled],
+  );
+  const remainingReferenceSlots = useMemo(
+    () =>
+      attach.maxSelectionCount == null
+        ? undefined
+        : Math.max(0, attach.maxSelectionCount - files.size),
+    [attach.maxSelectionCount, files.size],
+  );
+  const nextReferencePosition = useMemo(() => {
+    let highest = -1;
+    for (const file of files.values()) {
+      highest = Math.max(highest, file.metadata?.referenceLibrary?.position ?? -1);
+    }
+    return highest + 1;
+  }, [files]);
+  const attachReferences = useCallback(
+    (selectedFiles: TFile[]) => {
+      const newFileCount = selectedFiles.filter((file) => !files.has(file.file_id)).length;
+      if (remainingReferenceSlots != null && newFileCount > remainingReferenceSlots) {
+        showToast({
+          status: 'error',
+          message: localize(
+            attach.maxSelectionCount === 1
+              ? 'com_ui_attach_error_file_limit_one'
+              : 'com_ui_attach_error_file_limit',
+            { count: attach.maxSelectionCount, 0: endpoint ?? '' },
+          ),
+        });
+        return;
+      }
+      selectedFiles.forEach(recent.attach);
+    },
+    [
+      attach.maxSelectionCount,
+      endpoint,
+      files,
+      localize,
+      recent.attach,
+      remainingReferenceSlots,
+      showToast,
+    ],
+  );
 
   /** One pass over each source: filter by query, split favourites out, then
    *  flatten to the row model the virtualized list renders from. */
@@ -474,9 +553,9 @@ function Palette({
          resting list short, not to make a row unfindable by name. */
       const matched =
         query === ''
-          ? attach.entries.filter((item) => showAllAttach || item.primary === true)
-          : attach.entries.filter((item) => item.label.toLowerCase().includes(query));
-      const folded = query === '' && attach.entries.some((item) => item.primary !== true);
+          ? attachEntries.filter((item) => showAllAttach || item.primary === true)
+          : attachEntries.filter((item) => item.label.toLowerCase().includes(query));
+      const folded = query === '' && attachEntries.some((item) => item.primary !== true);
       if (matched.length > 0 || folded) {
         next.push({ type: 'header', key: 'h:attach', label: localize('com_ui_composer_attach') });
         for (const entry of matched) {
@@ -540,7 +619,7 @@ function Palette({
     entries,
     favorites.keys,
     query,
-    attach.entries,
+    attachEntries,
     showAllAttach,
     expanded,
     recent.files,
@@ -1398,6 +1477,14 @@ function Palette({
         isDownloading={attach.isProcessing}
         downloadProgress={attach.downloadProgress}
         maxSelectionCount={attach.maxSelectionCount}
+      />
+      <ReferencePicker
+        open={referencePickerOpen}
+        onOpenChange={setReferencePickerOpen}
+        onAttach={attachReferences}
+        maxSelectionCount={remainingReferenceSlots}
+        startingPosition={nextReferencePosition}
+        returnFocusRef={referencePickerReturnRef}
       />
       <Catalog
         section={catalog}

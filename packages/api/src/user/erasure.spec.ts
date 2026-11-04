@@ -90,6 +90,42 @@ async function seedUser(userId: mongoose.Types.ObjectId) {
     { user: userId, file_id: `file-a-${user}`, filepath: '/uploads/a', source: 'local' },
     { user: userId, file_id: `file-b-${user}`, filepath: '/uploads/b', source: 's3' },
   ]);
+  const referenceAssetId = new mongoose.Types.ObjectId();
+  const referenceCollectionId = new mongoose.Types.ObjectId();
+  await model('ReferenceAsset').insertOne({
+    _id: referenceAssetId,
+    ownerId: user,
+    fileId: `file-a-${user}`,
+    exactHash: `hash-${user}`,
+    trashedAt: null,
+  });
+  await model('ReferenceCollection').insertOne({
+    _id: referenceCollectionId,
+    ownerId: user,
+    name: 'References',
+  });
+  await Promise.all([
+    model('ReferenceCollectionItem').insertOne({
+      ownerId: user,
+      collectionId: referenceCollectionId,
+      assetId: referenceAssetId,
+      position: 0,
+    }),
+    model('ReferenceTag').insertOne({ ownerId: user, name: 'Study', normalizedName: 'study' }),
+    model('ReferenceSavedFilter').insertOne({
+      ownerId: user,
+      name: 'Favorites',
+      version: 1,
+      filter: { favorite: true },
+    }),
+    model('ReferenceImport').insertOne({
+      ownerId: user,
+      idempotencyKey: `request-${user}`,
+      results: [],
+      completed: true,
+      expiresAt: new Date(Date.now() + 60_000),
+    }),
+  ]);
   await model('Conversation').insertOne({ user, conversationId: `convo-${user}` });
   await model('Transaction').insertOne({ user: userId, tokenType: 'prompt', rawAmount: -1 });
   await model('ToolFavorite').insertOne({ user: userId, itemType: 'tool', itemId: 'web' });
@@ -203,6 +239,17 @@ describe('eraseUserData', () => {
     expect(await count('AgentQueuedTurn', { user: userId })).toBe(0);
     expect(await count('AgentQueuedTurnSequence', { user: userId })).toBe(0);
     expect(await count('RefreshTokenBridge', { userId: user })).toBe(0);
+    for (const name of [
+      'ReferenceAsset',
+      'ReferenceCollection',
+      'ReferenceCollectionItem',
+      'ReferenceTag',
+      'ReferenceSavedFilter',
+      'ReferenceImport',
+    ]) {
+      expect(await count(name, { ownerId: user })).toBe(0);
+      expect(await count(name, { ownerId: otherId.toString() })).toBeGreaterThan(0);
+    }
 
     expect(await count('Skill', { _id: other.skillId })).toBe(1);
     expect(await count('MCPServer', { author: otherId })).toBe(2);

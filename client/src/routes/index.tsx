@@ -46,6 +46,11 @@ const loadInsightsView = () =>
     Component: m.default,
   }));
 
+const loadReferenceLibrary = () =>
+  importWithRecovery(() => import('~/components/ReferenceLibrary/ReferenceLibrary')).then((m) => ({
+    Component: m.default,
+  }));
+
 const loadProjectsView = () =>
   importWithRecovery(() => import('~/components/Projects')).then((m) => ({
     Component: m.ProjectsView,
@@ -167,6 +172,10 @@ export const router = createBrowserRouter(
                 {
                   path: 'insights',
                   lazy: loadInsightsView,
+                },
+                {
+                  path: 'library',
+                  lazy: loadReferenceLibrary,
                 },
                 {
                   path: 'skills/new',

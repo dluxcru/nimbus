@@ -133,6 +133,27 @@ projects:
 # - Use local storage for documents for privacy/compliance
 # - Use CloudFront for CDN-accelerated delivery (requires S3 + cloudfront config below)
 
+# Private image reference library
+# The library stores imported images with the configured image file strategy.
+# Google Images uses the Serper image API. Wikimedia Commons does not need an API key.
+# referenceLibrary:
+#   enabled: true
+#   providers:
+#     google:
+#       apiKey: '${SERPER_API_KEY}'
+#     wikimedia:
+#       userAgent: 'LibreChat reference library (admin@example.com)'
+#     pexels:
+#       apiKey: '${PEXELS_API_KEY}'
+#   import:
+#     maxBytes: 20971520       # 20 MiB
+#     maxPixels: 40000000
+#     timeoutMs: 15000
+#     tokenTtlSeconds: 300
+#     maxBatchSize: 25
+#   sanitizationVersion: 1
+#   trashRetentionDays: 30
+
 # CloudFront CDN Configuration (optional)
 # Use when fileStrategy: "cloudfront" or fileStrategies includes cloudfront
 # Requires: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME

@@ -13,12 +13,12 @@ referenceTagSchema.index({ ownerId: 1, normalizedName: 1 }, { unique: true });
 
 export const referenceSavedFilterSchema: Schema<IReferenceSavedFilter> =
   new Schema<IReferenceSavedFilter>(
-  {
-    ownerId: { type: String, required: true, index: true },
-    name: { type: String, required: true, trim: true, maxlength: 256 },
-    version: { type: Number, required: true, min: 1, default: 1 },
-    filter: { type: Schema.Types.Mixed, required: true },
-  },
-  { timestamps: true },
-);
+    {
+      ownerId: { type: String, required: true, index: true },
+      name: { type: String, required: true, trim: true, maxlength: 256 },
+      version: { type: Number, required: true, min: 1, default: 1 },
+      filter: { type: Schema.Types.Mixed, required: true },
+    },
+    { timestamps: true },
+  );
 referenceSavedFilterSchema.index({ ownerId: 1, name: 1 });

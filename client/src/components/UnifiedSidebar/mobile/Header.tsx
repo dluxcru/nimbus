@@ -24,7 +24,7 @@ function Header({
   onClose,
   onNewChat,
   switchToHistory,
-  onLeaveInsights,
+  onLeaveRoute,
   routeActiveId,
 }: {
   links: NavLink[];
@@ -32,7 +32,7 @@ function Header({
   onClose: () => void;
   onNewChat: (afterSlide?: () => void) => void;
   switchToHistory: boolean;
-  onLeaveInsights?: () => void;
+  onLeaveRoute?: () => void;
   routeActiveId?: string;
 }) {
   const localize = useLocalize();
@@ -76,7 +76,7 @@ function Header({
       </Button>
       <Switcher
         links={links}
-        onLeaveInsights={onLeaveInsights}
+        onLeaveRoute={onLeaveRoute}
         onNavigate={onClose}
         routeActiveId={routeActiveId}
       />

@@ -23,6 +23,7 @@ const schedules = require('./schedules');
 const skills = require('./skills');
 const balance = require('./balance');
 const actions = require('./actions');
+const referenceLibrary = require('./referenceLibrary');
 const apiKeys = require('./apiKeys');
 const banner = require('./banner');
 const openapi = require('./openapi');
@@ -90,6 +91,7 @@ module.exports = {
   endpoints,
   assistants,
   categories,
+  referenceLibrary,
   staticRoute,
   accessPermissions,
 };

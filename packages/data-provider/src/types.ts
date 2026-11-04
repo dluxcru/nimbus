@@ -37,7 +37,6 @@ export * from './types/background';
 export * from './types/pullRequest';
 export * from './types/referenceLibrary';
 
-
 export type TMessages = TMessage[];
 
 /* TODO: Cleanup EndpointOption types */

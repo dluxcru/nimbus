@@ -3,7 +3,7 @@ import { RecoilRoot } from 'recoil';
 import { getDefaultStore } from 'jotai';
 import '@testing-library/jest-dom/extend-expect';
 import { MemoryRouter } from 'react-router-dom';
-import { MessagesSquare, NotebookPen } from 'lucide-react';
+import { Images, MessagesSquare, NotebookPen } from 'lucide-react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NavLink } from '~/common';
@@ -104,6 +104,7 @@ function renderPanel({
   onCollapse = jest.fn(),
   onExpand = jest.fn(),
   onNavigate,
+  routeActiveId,
   initialPanel = DEFAULT_PANEL,
   switchToHistory = true,
 }: {
@@ -112,6 +113,7 @@ function renderPanel({
   onCollapse?: jest.Mock;
   onExpand?: jest.Mock;
   onNavigate?: jest.Mock;
+  routeActiveId?: string;
   initialPanel?: string;
   switchToHistory?: boolean;
 } = {}) {
@@ -128,6 +130,7 @@ function renderPanel({
               onCollapse={onCollapse}
               onExpand={onExpand}
               onNavigate={onNavigate}
+              routeActiveId={routeActiveId}
               switchToHistory={switchToHistory}
             />
           </ActivePanelProvider>
@@ -214,6 +217,33 @@ describe('ExpandedPanel', () => {
       fireEvent.click(idle);
       expect(idle).toHaveAttribute('aria-pressed', 'true');
       expect(active).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('marks the reference library route active instead of the remembered panel', () => {
+      const links = [
+        ...createLinks(),
+        {
+          title: 'com_reference_library_navigation' as const,
+          icon: Images,
+          id: 'reference-library',
+          onClick: jest.fn(),
+        },
+      ];
+
+      renderPanel({
+        expanded: false,
+        links,
+        initialPanel: 'prompts',
+        routeActiveId: 'reference-library',
+      });
+
+      expect(
+        screen.getByRole('button', { name: 'com_reference_library_navigation' }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByRole('button', { name: 'com_ui_prompts' })).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
     });
 
     it('hovers the sidebar toggle and new chat link in the navigation role', () => {

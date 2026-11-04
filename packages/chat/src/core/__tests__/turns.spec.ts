@@ -139,6 +139,81 @@ describe('buildTurn', () => {
     });
   });
 
+  it('snapshots ordered reference metadata and purpose notes on the sent message', () => {
+    const files = new Map<string, ExtendedFile>([
+      [
+        'reference-1',
+        {
+          file_id: 'reference-1',
+          filename: 'castle.png',
+          type: 'image/png',
+          progress: 1,
+          size: 1,
+          metadata: {
+            referenceLibrary: {
+              assetId: 'asset-1',
+              title: 'Castle',
+              purpose: 'architecture',
+              position: 0,
+            },
+          },
+        },
+      ],
+    ]);
+
+    const turn = buildTurn(input({ files }));
+
+    expect(turn.currentMsg.files?.[0]?.metadata?.referenceLibrary).toEqual({
+      assetId: 'asset-1',
+      title: 'Castle',
+      purpose: 'architecture',
+      position: 0,
+    });
+    expect(turn.currentMsg.text).toBe(
+      'Next question\n\nReference purposes:\n- Castle: architecture',
+    );
+  });
+
+  it('keeps one reference-purpose snapshot when regenerating the persisted user message', () => {
+    const referenceText = 'Hello\n\nReference purposes:\n- Castle: architecture';
+    const referenceUser: TMessage = {
+      ...user,
+      text: referenceText,
+      files: [
+        {
+          file_id: 'reference-1',
+          filepath: '/castle.png',
+          filename: 'castle.png',
+          type: 'image/png',
+          metadata: {
+            referenceLibrary: {
+              assetId: 'asset-1',
+              title: 'Castle',
+              purpose: 'architecture',
+              position: 0,
+            },
+          },
+        },
+      ],
+    };
+    const turn = buildTurn(
+      input({
+        text: referenceText,
+        params: {
+          text: referenceText,
+          messageId: referenceUser.messageId,
+          parentMessageId: Constants.NO_PARENT as string,
+        },
+        options: { isRegenerate: true, targetResponseMessageId: response.messageId },
+        cachedMessages: [referenceUser, response],
+      }),
+    );
+
+    expect(turn.currentMsg.text).toBe(referenceText);
+    expect(turn.currentMsg.text.match(/Reference purposes:/g)).toHaveLength(1);
+    expect(turn.currentMsg.files).toEqual(referenceUser.files);
+  });
+
   it('leaves composer files alone when the caller supplies the attachments', () => {
     const files = new Map<string, ExtendedFile>([
       ['temp-1', { file_id: 'file-2', temp_file_id: 'temp-1', progress: 1, size: 1 }],

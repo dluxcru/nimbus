@@ -6,6 +6,7 @@ import {
   filtersConfigSchema,
   conversationListConfigSchema,
   toolCallPreviewsConfigSchema,
+  referenceLibrarySchema,
   hasActiveFiltersConfig,
   getConfigDefaults,
   langfuseConfigSchema,
@@ -250,6 +251,9 @@ export const AppService = async (params?: {
     credentials: { writeFormat: config.credentials?.writeFormat ?? 'v3' },
     conversationList: loadConversationListConfig(config),
     toolCallPreviews: loadToolCallPreviewsConfig(config),
+    referenceLibrary: config.referenceLibrary
+      ? referenceLibrarySchema.parse(config.referenceLibrary)
+      : undefined,
   };
 
   const agentsDefaults = agentsConfigSetup(config);

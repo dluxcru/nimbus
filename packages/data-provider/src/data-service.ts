@@ -634,9 +634,8 @@ export const getToolCalls = (params: q.GetToolCallParams): Promise<q.ToolCallRes
 
 /* Reference library */
 
-export const getReferenceLibraryCapabilities =
-  (): Promise<t.ReferenceLibraryCapabilities> =>
-    request.get(endpoints.referenceLibraryCapabilities());
+export const getReferenceLibraryCapabilities = (): Promise<t.ReferenceLibraryCapabilities> =>
+  request.get(endpoints.referenceLibraryCapabilities());
 
 export const getReferenceAssets = (
   filters: t.ReferenceAssetFilters = {},
@@ -646,21 +645,23 @@ export const getReferenceAssets = (
 export const getReferenceAsset = (assetId: string): Promise<t.ReferenceAsset> =>
   request.get(endpoints.referenceLibraryAsset(assetId));
 
+export const saveExistingReferenceImage = (payload: {
+  fileId: string;
+  title?: string;
+}): Promise<t.ReferenceSaveResponse> => request.post(endpoints.referenceLibraryAssets(), payload);
+
 export const searchReferenceProviders = (
   payload: t.ReferenceSearchRequest,
-): Promise<t.ReferenceSearchResponse> =>
-  request.post(endpoints.referenceLibrarySearch(), payload);
+): Promise<t.ReferenceSearchResponse> => request.post(endpoints.referenceLibrarySearch(), payload);
 
 export const importReferenceAssets = (
   payload: t.ReferenceImportRequest,
-): Promise<t.ReferenceImportResponse> =>
-  request.post(endpoints.referenceLibraryImports(), payload);
+): Promise<t.ReferenceImportResponse> => request.post(endpoints.referenceLibraryImports(), payload);
 
 export const updateReferenceAsset = (
   assetId: string,
   patch: t.ReferenceAssetPatch,
-): Promise<t.ReferenceAsset> =>
-  request.patch(endpoints.referenceLibraryAsset(assetId), patch);
+): Promise<t.ReferenceAsset> => request.patch(endpoints.referenceLibraryAsset(assetId), patch);
 
 export const bulkUpdateReferenceAssets = (
   payload: t.ReferenceBulkPatchRequest,
@@ -672,14 +673,24 @@ export const getReferenceCollections = (): Promise<t.ReferenceCollection[]> =>
 
 export const createReferenceCollection = (
   payload: Pick<t.ReferenceCollection, 'name' | 'description'>,
-): Promise<t.ReferenceCollection> =>
-  request.post(endpoints.referenceLibraryCollections(), payload);
+): Promise<t.ReferenceCollection> => request.post(endpoints.referenceLibraryCollections(), payload);
 
 export const updateReferenceCollection = (
   collectionId: string,
   patch: Partial<Pick<t.ReferenceCollection, 'name' | 'description' | 'coverAssetId'>>,
 ): Promise<t.ReferenceCollection> =>
   request.patch(endpoints.referenceLibraryCollection(collectionId), patch);
+
+export const getReferenceCollectionAssets = (
+  collectionId: string,
+): Promise<{ items: t.ReferenceAsset[] }> =>
+  request.get(endpoints.referenceLibraryCollectionAssets(collectionId));
+
+export const setReferenceCollectionAssets = (
+  collectionId: string,
+  assetIds: string[],
+): Promise<{ ok: boolean }> =>
+  request.put(endpoints.referenceLibraryCollectionAssets(collectionId), { assetIds });
 
 export const getReferenceTags = (): Promise<t.ReferenceTag[]> =>
   request.get(endpoints.referenceLibraryTags());
@@ -695,19 +706,13 @@ export const createReferenceSavedFilter = (
 ): Promise<t.ReferenceSavedFilter> =>
   request.post(endpoints.referenceLibrarySavedFilters(), payload);
 
-export const trashReferenceAssets = (
-  assetIds: string[],
-): Promise<{ modified: number }> =>
+export const trashReferenceAssets = (assetIds: string[]): Promise<{ modified: number }> =>
   request.post(endpoints.referenceLibraryTrash(), { assetIds });
 
-export const restoreReferenceAssets = (
-  assetIds: string[],
-): Promise<{ modified: number }> =>
+export const restoreReferenceAssets = (assetIds: string[]): Promise<{ modified: number }> =>
   request.post(`${endpoints.referenceLibraryTrash()}/restore`, { assetIds });
 
-export const purgeReferenceAssets = (
-  assetIds: string[],
-): Promise<{ purged: number }> =>
+export const purgeReferenceAssets = (assetIds: string[]): Promise<{ purged: number }> =>
   request.post(`${endpoints.referenceLibraryTrash()}/purge`, { assetIds });
 
 /* Files */

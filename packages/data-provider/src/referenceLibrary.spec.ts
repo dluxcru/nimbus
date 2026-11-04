@@ -20,6 +20,7 @@ describe('reference library contract', () => {
         tokenTtlSeconds: 300,
         maxBatchSize: 25,
       },
+      sanitizationVersion: 1,
       trashRetentionDays: 30,
     });
   });

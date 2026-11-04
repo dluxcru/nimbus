@@ -79,6 +79,26 @@ describe('AppService', () => {
     expect(result?.passkeys).toEqual({ perUserMax: 2 });
   });
 
+  it('preserves reference library configuration in the effective request configuration', async () => {
+    const referenceLibrary = {
+      enabled: true,
+      providers: { wikimedia: { userAgent: 'LibreChat reference tests' } },
+      sanitizationVersion: 2,
+    };
+
+    expect((await AppService({ config: { referenceLibrary } })).referenceLibrary).toEqual({
+      ...referenceLibrary,
+      import: {
+        maxBytes: 20 * 1024 * 1024,
+        maxPixels: 40_000_000,
+        timeoutMs: 15_000,
+        tokenTtlSeconds: 300,
+        maxBatchSize: 25,
+      },
+      trashRetentionDays: 30,
+    });
+  });
+
   const mockSystemTools: Record<string, FunctionTool> = {
     ExampleTool: {
       type: 'function',

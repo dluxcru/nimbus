@@ -31,6 +31,7 @@ import {
   createReferenceCollectionItemModel,
   createReferenceSavedFilterModel,
   createReferenceTagModel,
+  createReferenceImportModel,
 } from './referenceLibrary';
 import { createMCPServerModel } from './mcpServer';
 import { createAssistantModel } from './assistant';
@@ -105,6 +106,7 @@ export function createModels(mongoose: typeof import('mongoose')): {
   ReferenceCollectionItem: ReturnType<typeof createReferenceCollectionItemModel>;
   ReferenceTag: ReturnType<typeof createReferenceTagModel>;
   ReferenceSavedFilter: ReturnType<typeof createReferenceSavedFilterModel>;
+  ReferenceImport: ReturnType<typeof createReferenceImportModel>;
   AccessRole: ReturnType<typeof createAccessRoleModel>;
   AclEntry: ReturnType<typeof createAclEntryModel>;
   SystemGrant: ReturnType<typeof createSystemGrantModel>;
@@ -165,6 +167,7 @@ export function createModels(mongoose: typeof import('mongoose')): {
     ReferenceCollectionItem: createReferenceCollectionItemModel(mongoose),
     ReferenceTag: createReferenceTagModel(mongoose),
     ReferenceSavedFilter: createReferenceSavedFilterModel(mongoose),
+    ReferenceImport: createReferenceImportModel(mongoose),
     AccessRole: createAccessRoleModel(mongoose),
     AclEntry: createAclEntryModel(mongoose),
     SystemGrant: createSystemGrantModel(mongoose),

@@ -4469,7 +4469,12 @@ export const referenceLibrarySchema = z
       .default({}),
     import: z
       .object({
-        maxBytes: z.number().int().min(1).max(100 * 1024 * 1024).default(20 * 1024 * 1024),
+        maxBytes: z
+          .number()
+          .int()
+          .min(1)
+          .max(100 * 1024 * 1024)
+          .default(20 * 1024 * 1024),
         maxPixels: z.number().int().min(1).max(200_000_000).default(40_000_000),
         timeoutMs: z.number().int().min(100).max(120_000).default(15_000),
         tokenTtlSeconds: z.number().int().min(30).max(3_600).default(300),
@@ -4483,12 +4488,12 @@ export const referenceLibrarySchema = z
         tokenTtlSeconds: 300,
         maxBatchSize: 25,
       }),
+    sanitizationVersion: z.number().int().min(1).max(1_000_000).default(1),
     trashRetentionDays: z.number().int().min(1).max(365).default(30),
   })
   .strict();
 
 export type TReferenceLibraryConfig = z.infer<typeof referenceLibrarySchema>;
-
 
 export const configSchema = z.object({
   version: z.string(),

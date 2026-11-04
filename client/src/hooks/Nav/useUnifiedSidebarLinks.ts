@@ -1,12 +1,17 @@
 import { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
-import { BarChart3, MessagesSquare } from 'lucide-react';
+import { BarChart3, Images, MessagesSquare } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserKeyQuery } from 'librechat-data-provider/react-query';
 import { getConfigDefaults, getEndpointField } from 'librechat-data-provider';
 import type { TEndpointsConfig } from 'librechat-data-provider';
 import type { NavLink } from '~/common';
-import { useGetEndpointsQuery, useGetStartupConfig, useInsightsAccessQuery } from '~/data-provider';
+import {
+  useGetEndpointsQuery,
+  useGetStartupConfig,
+  useInsightsAccessQuery,
+  useReferenceLibraryCapabilities,
+} from '~/data-provider';
 import ConversationsSection from '~/components/UnifiedSidebar/ConversationsSection';
 import useSideNavLinks from '~/hooks/Nav/useSideNavLinks';
 import { useAuthContext } from '~/hooks';
@@ -23,6 +28,7 @@ export default function useUnifiedSidebarLinks() {
   const endpoint = useRecoilValue(store.conversationEndpointByIndex(0)) ?? undefined;
   const { data: startupConfig } = useGetStartupConfig();
   const { data: endpointsConfig = {} as TEndpointsConfig } = useGetEndpointsQuery();
+  const { data: referenceLibrary } = useReferenceLibraryCapabilities();
 
   const interfaceConfig = useMemo(
     () => startupConfig?.interface ?? defaultInterface,
@@ -30,6 +36,7 @@ export default function useUnifiedSidebarLinks() {
   );
   const insightsFeatureEnabled = startupConfig?.insightsEnabled === true;
   const isInsightsRoute = location.pathname.startsWith('/insights');
+  const isLibraryRoute = location.pathname.startsWith('/library');
   const { data: insightsAccess, isLoading: isInsightsAccessLoading } = useInsightsAccessQuery(
     user?.id,
     {
@@ -72,11 +79,28 @@ export default function useUnifiedSidebarLinks() {
       Component: ConversationsSection,
     };
 
+    const nextLinks = [...sideNavLinks];
+    if (referenceLibrary?.enabled || isLibraryRoute) {
+      const libraryLink: NavLink = {
+        title: 'com_reference_library_navigation',
+        label: '',
+        icon: Images,
+        id: 'reference-library',
+        onClick: () => {
+          if (!location.pathname.startsWith('/library')) {
+            navigate('/library');
+          }
+        },
+      };
+      const mcpIndex = nextLinks.findIndex((link) => link.id === 'mcp-builder');
+      nextLinks.splice(mcpIndex >= 0 ? mcpIndex + 1 : nextLinks.length, 0, libraryLink);
+    }
+
     if (
       !insightsFeatureEnabled ||
       (!isInsightsRoute && !isInsightsAccessLoading && insightsAccess?.access !== true)
     ) {
-      return [conversationLink, ...sideNavLinks];
+      return [conversationLink, ...nextLinks];
     }
 
     const insightsLink: NavLink = {
@@ -91,8 +115,7 @@ export default function useUnifiedSidebarLinks() {
         }
       },
     };
-    const mcpIndex = sideNavLinks.findIndex((link) => link.id === 'mcp-builder');
-    const nextLinks = [...sideNavLinks];
+    const mcpIndex = nextLinks.findIndex((link) => link.id === 'mcp-builder');
     nextLinks.splice(mcpIndex >= 0 ? mcpIndex + 1 : nextLinks.length, 0, insightsLink);
 
     return [conversationLink, ...nextLinks];
@@ -101,6 +124,8 @@ export default function useUnifiedSidebarLinks() {
     insightsFeatureEnabled,
     isInsightsAccessLoading,
     isInsightsRoute,
+    isLibraryRoute,
+    referenceLibrary?.enabled,
     location.pathname,
     navigate,
     sideNavLinks,

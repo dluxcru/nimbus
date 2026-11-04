@@ -5,6 +5,7 @@ import type {
   IReferenceCollectionItem,
   IReferenceSavedFilter,
   IReferenceTag,
+  IReferenceImport,
 } from '~/types/referenceLibrary';
 import referenceAssetSchema from '~/schema/referenceAsset';
 import {
@@ -12,6 +13,7 @@ import {
   referenceCollectionSchema,
 } from '~/schema/referenceCollection';
 import { referenceSavedFilterSchema, referenceTagSchema } from '~/schema/referenceTag';
+import referenceImportSchema from '~/schema/referenceImport';
 
 export function createReferenceAssetModel(
   mongoose: typeof import('mongoose'),
@@ -36,12 +38,18 @@ export function createReferenceCollectionItemModel(
 ): Model<IReferenceCollectionItem> {
   return (
     mongoose.models.ReferenceCollectionItem ||
-    mongoose.model<IReferenceCollectionItem>('ReferenceCollectionItem', referenceCollectionItemSchema)
+    mongoose.model<IReferenceCollectionItem>(
+      'ReferenceCollectionItem',
+      referenceCollectionItemSchema,
+    )
   );
 }
 
 export function createReferenceTagModel(mongoose: typeof import('mongoose')): Model<IReferenceTag> {
-  return mongoose.models.ReferenceTag || mongoose.model<IReferenceTag>('ReferenceTag', referenceTagSchema);
+  return (
+    mongoose.models.ReferenceTag ||
+    mongoose.model<IReferenceTag>('ReferenceTag', referenceTagSchema)
+  );
 }
 
 export function createReferenceSavedFilterModel(
@@ -50,5 +58,13 @@ export function createReferenceSavedFilterModel(
   return (
     mongoose.models.ReferenceSavedFilter ||
     mongoose.model<IReferenceSavedFilter>('ReferenceSavedFilter', referenceSavedFilterSchema)
+  );
+}
+export function createReferenceImportModel(
+  mongoose: typeof import('mongoose'),
+): Model<IReferenceImport> {
+  return (
+    mongoose.models.ReferenceImport ||
+    mongoose.model<IReferenceImport>('ReferenceImport', referenceImportSchema)
   );
 }

@@ -237,6 +237,11 @@ const processDeleteRequest = async ({ req, files }) => {
   }
 
   for (const file of files) {
+    if (file.context === 'reference-library') {
+      failedFileIds.add(file.file_id);
+      continue;
+    }
+
     const source = file.source ?? FileSources.local;
 
     if (source === FileSources.text) {

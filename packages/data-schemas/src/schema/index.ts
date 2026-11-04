@@ -34,11 +34,9 @@ export { default as userSchema } from './user';
 export { default as memorySchema, isValidMemoryKey } from './memory';
 export { default as toolFavoriteSchema } from './favorite';
 export { default as referenceAssetSchema } from './referenceAsset';
-export {
-  referenceCollectionSchema,
-  referenceCollectionItemSchema,
-} from './referenceCollection';
+export { referenceCollectionSchema, referenceCollectionItemSchema } from './referenceCollection';
 export { referenceTagSchema, referenceSavedFilterSchema } from './referenceTag';
+export { default as referenceImportSchema } from './referenceImport';
 export { default as groupSchema } from './group';
 export { default as systemGrantSchema } from './systemGrant';
 export { default as auditLogSchema } from './auditLog';

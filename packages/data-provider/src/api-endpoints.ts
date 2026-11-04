@@ -439,6 +439,8 @@ export const referenceLibraryDuplicates = () => `${referenceLibraryRoot}/duplica
 export const referenceLibraryCollections = () => `${referenceLibraryRoot}/collections`;
 export const referenceLibraryCollection = (collectionId: string) =>
   `${referenceLibraryCollections()}/${encodeURIComponent(collectionId)}`;
+export const referenceLibraryCollectionAssets = (collectionId: string) =>
+  `${referenceLibraryCollection(collectionId)}/assets`;
 export const referenceLibraryTags = () => `${referenceLibraryRoot}/tags`;
 export const referenceLibrarySavedFilters = () => `${referenceLibraryRoot}/saved-filters`;
 export const referenceLibraryTrash = () => `${referenceLibraryRoot}/trash`;
